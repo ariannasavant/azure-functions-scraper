@@ -28,5 +28,7 @@ jobs:
         uses: Azure/arm-deploy@v1
         with:
           scope: 'resourcegroup'
+          subscriptionID: ${{secrets.SUBSCRIPTION_ID}}
+          resourceGroupName: ${{secrets.RESOURCE_GROUP_NAME}}
           # name: 'azure-functions-scraper' # figure out a way for this to be dynamic... e.g. different for dev vs prod
           template: .github/workflows/armdeployment.json
