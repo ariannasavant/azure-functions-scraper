@@ -7,9 +7,17 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: '3.7'
+  AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+  AZURE_FUNCTIONAPP_NAME: 'aritestfunctionapp'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  RESOURCE_GROUP_NAME: ${{secrets.RESOURCE_GROUP_NAME}}
+  SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
+
 jobs:
   # TODO: This workflow will ultimately checkout main branch and deploy it to Azure using an ARM Template in-repo
-  build:
+  deploy_ARM:
 
     runs-on: ubuntu-latest
 
@@ -22,13 +30,42 @@ jobs:
         uses: Azure/login@v1
         with:
           # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-          creds: ${{secrets.AZURE_CREDENTIALS}}
+          creds: ${{env.AZURE_CREDENTIALS}}
 
       - name: Deploy ARM Template
         uses: Azure/arm-deploy@v1
         with:
           scope: 'resourcegroup'
-          subscriptionID: ${{secrets.SUBSCRIPTION_ID}}
-          resourceGroupName: ${{secrets.RESOURCE_GROUP_NAME}}
-          # name: 'azure-functions-scraper' # figure out a way for this to be dynamic... e.g. different for dev vs prod
+          subscriptionID: ${{env.SUBSCRIPTION_ID}}
+          resourceGroupName: ${{env.RESOURCE_GROUP_NAME}} # can this be dynamic somehow? e.g. create a new resource group for every deployment...
           template: .github/workflows/armdeployment.json
+
+  build_and_deploy_function_app:
+    needs: [deploy_ARM]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@master
+        
+      - name: Setup ${{ env.PYTHON_VERSION }} Python Environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Resolve Project Dependencies Using Pip
+        shell: bash
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+          popd
+
+      - name: Run Azure Functions Action
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+
