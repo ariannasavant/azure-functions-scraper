@@ -3,9 +3,8 @@ name: Deploy with ARM
 on:
   push:
     branches: [ main ] # Triggers the workflow on push on the main branch
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 env:
   PYTHON_VERSION: '3.7'
@@ -15,10 +14,10 @@ env:
   RESOURCE_GROUP_NAME: ${{secrets.RESOURCE_GROUP_NAME}}
   SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
 
-jobs:
-  # TODO: This workflow will ultimately checkout main branch and deploy it to Azure using an ARM Template in-repo
-  deploy_ARM:
 
+jobs:
+
+  deploy_ARM:
     runs-on: ubuntu-latest
 
     steps:
@@ -63,9 +62,10 @@ jobs:
 
       - name: Run Azure Functions Action
         uses: Azure/functions-action@v1
-        id: fa
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} # Path to package or folder. *.zip or a folder to deploy
+          # publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }} # OPTIONAL - Publish profile (*.publishsettings) file contents with web deploy secrets
+          
+          # slot-name: # optional -- Function app slot to be deploy to
 
