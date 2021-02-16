@@ -29,4 +29,4 @@ jobs:
         with:
           scope: 'resourcegroup'
           name: 'azure-functions-scraper' # figure out a way for this to be dynamic... e.g. different for dev vs prod
-          template: armdeployment.json
+          template: .github/workflows/armdeployment.json
