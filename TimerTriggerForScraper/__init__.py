@@ -8,7 +8,7 @@ import random
 import azure.functions as func
 
 #Get the connection string to the Azure Table Storage
-tableConnectionString = os.environ['tableConnectionString']
+tableConnectionString = os.environ['CUSTOMCONNSTR_tableConnectionString']
 
 def main(mytimer: func.TimerRequest) -> None:
     utc_timestamp = datetime.datetime.utcnow().replace(
