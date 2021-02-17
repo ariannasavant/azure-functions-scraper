@@ -7,11 +7,11 @@ on:
 
 
 env:
-  PYTHON_VERSION: '3.7'
-  AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
-  AZURE_FUNCTIONAPP_NAME: 'aritestfunctionapp'
+  AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}} # Paste output of `az ad sp create-for-rbac` as value of secret variable
+  AZURE_FUNCTIONAPP_NAME: 'python_nos_scraper'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  RESOURCE_GROUP_NAME: ${{secrets.RESOURCE_GROUP_NAME}}
+  PYTHON_VERSION: '3.7'
+  RESOURCE_GROUP_NAME: 'python_nos_scraper'
   SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
 
 
@@ -28,7 +28,6 @@ jobs:
       - name: Login to Azure
         uses: Azure/login@v1
         with:
-          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
           creds: ${{env.AZURE_CREDENTIALS}}
 
       - name: Deploy ARM Template
@@ -36,7 +35,7 @@ jobs:
         with:
           scope: 'resourcegroup'
           subscriptionID: ${{env.SUBSCRIPTION_ID}}
-          resourceGroupName: ${{env.RESOURCE_GROUP_NAME}} # can this be dynamic somehow? e.g. create a new resource group for every deployment...
+          resourceGroupName: ${{env.RESOURCE_GROUP_NAME}}
           template: .github/workflows/armdeployment.json
 
   build_and_deploy_function_app:
@@ -63,15 +62,11 @@ jobs:
       - name: Login to Azure
         uses: Azure/login@v1
         with:
-          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
           creds: ${{env.AZURE_CREDENTIALS}}
 
-      - name: Run Azure Functions Action
+      - name: Deploy Azure Function
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} # Path to package or folder. *.zip or a folder to deploy
-          # publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }} # OPTIONAL - Publish profile (*.publishsettings) file contents with web deploy secrets
-          
-          # slot-name: # optional -- Function app slot to be deploy to
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
