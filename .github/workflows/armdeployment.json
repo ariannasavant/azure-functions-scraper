@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "storageAccounts_python_nos_scraper_name": {
-            "defaultValue": "python_nos_scraper",
+            "defaultValue": "pythonnosscraper",
             "type": "String"
         }
     },
