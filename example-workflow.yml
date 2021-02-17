@@ -1,0 +1,77 @@
+name: Deploy with ARM
+
+on:
+  push:
+    branches: [ main ] # Triggers the workflow on push on the main branch
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+
+
+env:
+  PYTHON_VERSION: '3.7'
+  AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}}
+  AZURE_FUNCTIONAPP_NAME: 'aritestfunctionapp'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  RESOURCE_GROUP_NAME: ${{secrets.RESOURCE_GROUP_NAME}}
+  SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
+
+
+jobs:
+
+  deploy_ARM:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: Azure/login@v1
+        with:
+          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+          creds: ${{env.AZURE_CREDENTIALS}}
+
+      - name: Deploy ARM Template
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: 'resourcegroup'
+          subscriptionID: ${{env.SUBSCRIPTION_ID}}
+          resourceGroupName: ${{env.RESOURCE_GROUP_NAME}} # can this be dynamic somehow? e.g. create a new resource group for every deployment...
+          template: .github/workflows/armdeployment.json
+
+  build_and_deploy_function_app:
+    needs: [deploy_ARM]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@master
+        
+      - name: Setup ${{ env.PYTHON_VERSION }} Python Environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Resolve Project Dependencies Using Pip
+        shell: bash
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+          popd
+
+      - name: Login to Azure
+        uses: Azure/login@v1
+        with:
+          # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+          creds: ${{env.AZURE_CREDENTIALS}}
+
+      - name: Run Azure Functions Action
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }} # Path to package or folder. *.zip or a folder to deploy
+          # publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }} # OPTIONAL - Publish profile (*.publishsettings) file contents with web deploy secrets
+          
+          # slot-name: # optional -- Function app slot to be deploy to
+
