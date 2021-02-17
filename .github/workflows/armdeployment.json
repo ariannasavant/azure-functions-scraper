@@ -2,8 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageAccounts_aritestfunctionapp_name": {
-            "defaultValue": "aritestfunctionapp",
+        "storageAccounts_python_nos_scraper_name": {
+            "defaultValue": "python_nos_scraper",
             "type": "String"
         }
     },
@@ -12,7 +12,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2020-08-01-preview",
-            "name": "[parameters('storageAccounts_aritestfunctionapp_name')]",
+            "name": "[parameters('storageAccounts_python_nos_scraper_name')]",
             "location": "westeurope",
             "sku": {
                 "name": "Standard_LRS",
@@ -45,9 +45,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat(parameters('storageAccounts_aritestfunctionapp_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_python_nos_scraper_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aritestfunctionapp_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_python_nos_scraper_name'))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -65,9 +65,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat(parameters('storageAccounts_aritestfunctionapp_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_python_nos_scraper_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aritestfunctionapp_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_python_nos_scraper_name'))]"
             ],
             "properties": {
                 "cors": {
@@ -78,9 +78,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat(parameters('storageAccounts_aritestfunctionapp_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_python_nos_scraper_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aritestfunctionapp_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_python_nos_scraper_name'))]"
             ],
             "properties": {
                 "cors": {
@@ -91,10 +91,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat(parameters('storageAccounts_aritestfunctionapp_name'), '/default/azure-webjobs-hosts')]",
+            "name": "[concat(parameters('storageAccounts_python_nos_scraper_name'), '/default/azure-webjobs-hosts')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_aritestfunctionapp_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aritestfunctionapp_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_python_nos_scraper_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_python_nos_scraper_name'))]"
             ],
             "properties": {
                 "defaultEncryptionScope": "$account-encryption-key",
@@ -105,10 +105,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat(parameters('storageAccounts_aritestfunctionapp_name'), '/default/azure-webjobs-secrets')]",
+            "name": "[concat(parameters('storageAccounts_python_nos_scraper_name'), '/default/azure-webjobs-secrets')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_aritestfunctionapp_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aritestfunctionapp_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_python_nos_scraper_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_python_nos_scraper_name'))]"
             ],
             "properties": {
                 "defaultEncryptionScope": "$account-encryption-key",
@@ -119,10 +119,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat(parameters('storageAccounts_aritestfunctionapp_name'), '/default/scm-releases')]",
+            "name": "[concat(parameters('storageAccounts_python_nos_scraper_name'), '/default/scm-releases')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_aritestfunctionapp_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aritestfunctionapp_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_python_nos_scraper_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_python_nos_scraper_name'))]"
             ],
             "properties": {
                 "defaultEncryptionScope": "$account-encryption-key",
@@ -133,10 +133,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
             "apiVersion": "2020-08-01-preview",
-            "name": "[concat(parameters('storageAccounts_aritestfunctionapp_name'), '/default/scraperdata')]",
+            "name": "[concat(parameters('storageAccounts_python_nos_scraper_name'), '/default/scraperdata')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('storageAccounts_aritestfunctionapp_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aritestfunctionapp_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('storageAccounts_python_nos_scraper_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_python_nos_scraper_name'))]"
             ]
         }
     ]
