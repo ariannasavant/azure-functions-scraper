@@ -2,7 +2,7 @@ name: Deploy with ARM
 
 on:
   push:
-    branches: [ main ] # Triggers the workflow on push on the main branch
+    # branches: [ main ] # Triggers the workflow on push on the main branch
   workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
 
 
@@ -11,7 +11,7 @@ env:
   AZURE_FUNCTIONAPP_NAME: 'python_nos_scraper'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
   PYTHON_VERSION: '3.7'
-  RESOURCE_GROUP_NAME: $${{secrets.RESOURCE_GROUP_NAME}}
+  RESOURCE_GROUP_NAME: 'python_nos_scraper'
   SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
 
 
@@ -29,6 +29,16 @@ jobs:
         uses: Azure/login@v1
         with:
           creds: ${{env.AZURE_CREDENTIALS}}
+
+      - name: Find or Create Azure Resource Group
+        uses: Azure/powershell@v1
+        with:
+          inlineScript: |
+            $rgExists = az group exists -n ${{env.RESOURCE_GROUP_NAME}}
+            if ($rgExists -eq 'false') {
+              az group create --name ${{env.RESOURCE_GROUP_NAME}} --location "West Europe"
+              Write-Host "az resource group created"
+            }
 
       - name: Deploy ARM Template
         uses: Azure/arm-deploy@v1
