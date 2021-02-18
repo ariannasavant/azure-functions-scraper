@@ -11,7 +11,7 @@ env:
   AZURE_FUNCTIONAPP_NAME: 'python_nos_scraper'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
   PYTHON_VERSION: '3.7'
-  RESOURCE_GROUP_NAME: 'python_nos_scraper'
+  RESOURCE_GROUP_NAME: $${{secrets.RESOURCE_GROUP_NAME}}
   SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}}
 
 
