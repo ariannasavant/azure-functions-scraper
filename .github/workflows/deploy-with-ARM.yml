@@ -6,11 +6,65 @@ on:
   workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
 
 
+env:
+  SUBSCRIPTION_ID: ${{secrets.SUBSCRIPTION_ID}} # TODO #1: Add a secret with your Azure subscription ID
+  AZURE_CREDENTIALS: ${{secrets.AZURE_CREDENTIALS}} # TODO #2: Paste output of `az ad sp create-for-rbac` as value of secret variable
+  RESOURCE_GROUP_NAME: 'aritestfunctionapp' # TODO #3: replace this with the name of your resource group in Azure
+  AZURE_FUNCTIONAPP_NAME: 'aritestfunctionapp' # TODO #4: replace this with the name of your function app in Azure
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
+  PYTHON_VERSION: '3.7'
+
 
 jobs:
 
   deploy_ARM:
-   
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: Azure/login@v1
+        with:
+          creds: ${{env.AZURE_CREDENTIALS}}
+
+      - name: Deploy ARM Template
+        uses: Azure/arm-deploy@v1
+        with:
+          scope: 'resourcegroup'
+          subscriptionID: ${{env.SUBSCRIPTION_ID}}
+          resourceGroupName: ${{env.RESOURCE_GROUP_NAME}}
+          template: .github/workflows/armdeployment.json
 
   build_and_deploy_function_app:
-   
+    needs: [deploy_ARM]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@master
+        
+      - name: Setup ${{ env.PYTHON_VERSION }} Python Environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Resolve Project Dependencies Using Pip
+        shell: bash
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+          popd
+
+      - name: Login to Azure
+        uses: Azure/login@v1
+        with:
+          creds: ${{env.AZURE_CREDENTIALS}}
+
+      - name: Deploy Azure Function
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
